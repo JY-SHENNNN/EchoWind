@@ -1,0 +1,78 @@
+#include <WiFiNINA.h>
+#include <PubSubClient.h>
+#include "arduino_secrets.h"
+
+// Replace with your own WiFi credentials
+const char* ssid          = SECRET_SSID;
+const char* password      = SECRET_PASS;
+const char* mqtt_username = SECRET_MQTTUSER;
+const char* mqtt_password = SECRET_MQTTPASS;
+
+const char* mqtt_server = "mqtt.cetools.org";
+const int mqtt_port = 1884;
+const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed10_kph";
+
+WiFiClient wifiClient;
+PubSubClient client(wifiClient);
+
+String lastMessage = "";
+bool messageChanged = false;
+
+// Function to reconnect to the MQTT broker
+void reconnectMQTT() {
+  while (!client.connected()) {
+    Serial.print("Attempting to connect to MQTT broker...");
+    if (client.connect("MKR1010_Client", mqtt_username, mqtt_password)) {
+      Serial.println("Connected successfully!");
+      if (client.subscribe(mqtt_topic)) {
+        Serial.println("Successfully subscribed to topic!");
+      } else {
+        Serial.println("Failed to subscribe!");
+      }
+    } else {
+      Serial.print("Connection failed, error code: ");
+      Serial.print(client.state());
+      Serial.println(". Retrying in 5 seconds...");
+      delay(5000);
+    }
+  }
+}
+
+// Callback function for received MQTT messages
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message received from topic [");
+  Serial.print(topic);
+  Serial.print("]: ");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println();
+}
+
+
+void setup() {
+  Serial.begin(9600);
+  delay(1000);
+
+  // Connect to WiFi
+  Serial.print("Connecting to WiFi: ");
+  Serial.println(ssid);
+  while (WiFi.begin(ssid, password) != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println("\nWiFi connected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  // Set MQTT server and callback function
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(callback);
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnectMQTT();
+  }
+  client.loop();  // Process incoming MQTT messages
+}
