@@ -40,13 +40,23 @@ void reconnectMQTT() {
 
 // Callback function for received MQTT messages
 void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message received from topic [");
-  Serial.print(topic);
-  Serial.print("]: ");
+  String currentMessage = "";
   for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
+    currentMessage += (char)payload[i];
   }
-  Serial.println();
+  // Serial.print("Message received from topic [");
+  // Serial.print(topic);
+  // Serial.print("]: ");
+  // Serial.println();
+  if (currentMessage != currentMessage) {
+    messageChanged = true;
+    Serial.print("Message received from topic [");
+    Serial.print(topic);
+    Serial.print("]: ");
+    Serial.println(currentMessage);
+  }
+
+  lastMessage = currentMessage;
 }
 
 
@@ -75,4 +85,9 @@ void loop() {
     reconnectMQTT();
   }
   client.loop();  // Process incoming MQTT messages
+
+  if (messageChanged) {
+    messageChanged = false;
+    Serial.println("change detected, trigger the wind chime");
+  }
 }
