@@ -2,6 +2,8 @@
 #include <PubSubClient.h>
 #include "arduino_secrets.h"
 
+#define motor_pin 1
+
 // Replace with your own WiFi credentials
 const char* ssid          = SECRET_SSID;
 const char* password      = SECRET_PASS;
@@ -10,13 +12,15 @@ const char* mqtt_password = SECRET_MQTTPASS;
 
 const char* mqtt_server = "mqtt.cetools.org";
 const int mqtt_port = 1884;
-const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed10_kph";
+const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 
 String lastMessage = "";
+float speed_kph;
 bool messageChanged = false;
+bool enableMotor = false;
 
 // Function to reconnect to the MQTT broker
 void reconnectMQTT() {
@@ -44,11 +48,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++) {
     currentMessage += (char)payload[i];
   }
-  // Serial.print("Message received from topic [");
-  // Serial.print(topic);
-  // Serial.print("]: ");
-  // Serial.println();
-  if (currentMessage != currentMessage) {
+
+  if (currentMessage != lastMessage) {
     messageChanged = true;
     Serial.print("Message received from topic [");
     Serial.print(topic);
@@ -56,14 +57,44 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(currentMessage);
   }
 
+  speed_kph = currentMessage.toFloat();
   lastMessage = currentMessage;
+}
+
+
+void driveServo() {
+  if (enableMotor){
+    enableMotor = false;
+    int approxInt = round(speed_kph);
+    if (approxInt <= 8){
+      digitalWrite(motor_pin, HIGH);
+      delay(500);
+      digitalWrite(motor_pin, LOW);
+      delay(5000);
+    } else if (approxInt > 8 && approxInt <= 9) {
+      digitalWrite(motor_pin, HIGH);
+      delay(1000);
+      digitalWrite(motor_pin, LOW);
+      delay(5000);
+    } else if (approxInt > 9 && approxInt <= 10) {
+      digitalWrite(motor_pin, HIGH);
+      delay(3000);
+      digitalWrite(motor_pin, LOW);
+      delay(5000);
+    } else if (approxInt > 10){
+      digitalWrite(motor_pin, HIGH);
+      delay(5000);
+      digitalWrite(motor_pin, LOW);
+      delay(5000);
+    }
+  }
 }
 
 
 void setup() {
   Serial.begin(9600);
   delay(1000);
-
+  pinMode(motor_pin, OUTPUT);
   // Connect to WiFi
   Serial.print("Connecting to WiFi: ");
   Serial.println(ssid);
@@ -89,5 +120,7 @@ void loop() {
   if (messageChanged) {
     messageChanged = false;
     Serial.println("change detected, trigger the wind chime");
+    enableMotor = true;
+    driveServo();
   }
 }
