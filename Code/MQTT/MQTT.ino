@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 #include "arduino_secrets.h"
 
-#define motor_pin 1
+#define motor_pin 5
 
 // Replace with your own WiFi credentials
 const char* ssid          = SECRET_SSID;
@@ -90,6 +90,67 @@ void driveServo() {
   }
 }
 
+// void PWMalter() { //linear changes are hard to see the boundary
+//   int kph = 16;
+//   //int pwmValue = map(speed_kph, 0, 20, 0, 150); // linear reflect speed to PWM
+//   analogWrite(motor_pin, pwmValue); 
+//   Serial.println("pwmvalue");
+//   Serial.print(pwmValue);
+//   delay(5000); 
+// }
+
+void PWMWave() {
+  int pwmValue = getPwmValue(speed_kph);
+  analogWrite(motor_pin, pwmValue); 
+  Serial.println(pwmValue);
+  delay(1000);
+  analogWrite(motor_pin, LOW);
+  delay(2000);
+  // analogWrite(motor_pin, 30); 
+  // Serial.println(30);
+  // //Serial.print(pwmValue);
+  // delay(1000);
+  // analogWrite(motor_pin, LOW);
+  // delay(2000);
+  // analogWrite(motor_pin, LOW);
+  // delay(2000);
+  // analogWrite(motor_pin, 80); 
+  // Serial.println(80);
+  // //Serial.print(pwmValue);
+  // delay(1000);
+  // analogWrite(motor_pin, LOW);
+  // delay(2000);
+  // analogWrite(motor_pin, 120); 
+  // Serial.println(120);
+  // //Serial.print(pwmValue);
+  // delay(1000);
+  // analogWrite(motor_pin, LOW);
+  // delay(2000);
+  // analogWrite(motor_pin, 180); 
+  // Serial.println(180);
+  // //Serial.print(pwmValue);
+  // delay(1000);
+  // analogWrite(motor_pin, LOW);
+  // delay(2000);
+  // analogWrite(motor_pin, 255); 
+  // Serial.println(255);
+  // //Serial.print(pwmValue);
+  // delay(1000);
+  // analogWrite(motor_pin, LOW);
+  // delay(2000);
+
+}
+
+
+int getPwmValue(float kph) {
+  if (kph < 1) return map(kph, 0, 1, 0, 10);    // 0-10 KPH → PWM 30-80 weak
+  else if (kph < 5) return map(kph, 1, 5, 10, 30); // 10-30 → PWM 80-180 
+  else if (kph < 11) return map(kph, 5, 11, 30, 80);
+  else if (kph < 19) return map(kph, 11, 19, 80, 120);
+  else if (kph < 28) return map(kph, 19, 28, 120, 180);
+  else return map(kph, 28, 50, 180, 255);         // 30-50 → PWM 180-255 strong
+}
+
 
 void setup() {
   Serial.begin(9600);
@@ -121,6 +182,8 @@ void loop() {
     messageChanged = false;
     Serial.println("change detected, trigger the wind chime");
     enableMotor = true;
-    driveServo();
+    //driveServo();
+    //PWMalter();
+    PWMWave();
   }
 }
