@@ -1,18 +1,22 @@
-#include <Servo.h>  
-Servo myservo;      
-const int servoPin = 5; 
+#include <Servo.h>
+Servo servo;
 
 void setup() {
-  myservo.attach(servoPin); 
+  servo.attach(5);
+  servo.write(0); // initial point
+  Serial.begin(9600);
 }
 
 void loop() {
-  myservo.write(0);     // rotate to 0 degree
-  delay(100);          
-  myservo.write(90);    // rotate to 90 degree
-  delay(1000);
-  Serial.println(90);
-  myservo.write(0);   // rotate to 0 degree
-  delay(100);
+  if (servo.read() != 0) {
+    Serial.println("Not at origin!");
+  }
 
+  servo.write(90);
+  Serial.println("Moving to 90°");
+  delay(300);
+
+  servo.write(0);
+  Serial.println("Returning to 0°");
+  //delay(5000);
 }
