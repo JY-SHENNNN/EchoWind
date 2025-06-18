@@ -62,33 +62,33 @@ void callback(char* topic, byte* payload, unsigned int length) {
 }
 
 
-void driveServo() {
-  if (enableMotor){
-    enableMotor = false;
-    int approxInt = round(speed_kph);
-    if (approxInt <= 8){
-      digitalWrite(motor_pin, HIGH);
-      delay(500);
-      digitalWrite(motor_pin, LOW);
-      delay(5000);
-    } else if (approxInt > 8 && approxInt <= 9) {
-      digitalWrite(motor_pin, HIGH);
-      delay(1000);
-      digitalWrite(motor_pin, LOW);
-      delay(5000);
-    } else if (approxInt > 9 && approxInt <= 10) {
-      digitalWrite(motor_pin, HIGH);
-      delay(3000);
-      digitalWrite(motor_pin, LOW);
-      delay(5000);
-    } else if (approxInt > 10){
-      digitalWrite(motor_pin, HIGH);
-      delay(5000);
-      digitalWrite(motor_pin, LOW);
-      delay(5000);
-    }
-  }
-}
+// void driveServo() {
+//   if (enableMotor){
+//     enableMotor = false;
+//     int approxInt = round(speed_kph);
+//     if (approxInt <= 8){
+//       digitalWrite(motor_pin, HIGH);
+//       delay(500);
+//       digitalWrite(motor_pin, LOW);
+//       delay(5000);
+//     } else if (approxInt > 8 && approxInt <= 9) {
+//       digitalWrite(motor_pin, HIGH);
+//       delay(1000);
+//       digitalWrite(motor_pin, LOW);
+//       delay(5000);
+//     } else if (approxInt > 9 && approxInt <= 10) {
+//       digitalWrite(motor_pin, HIGH);
+//       delay(3000);
+//       digitalWrite(motor_pin, LOW);
+//       delay(5000);
+//     } else if (approxInt > 10){
+//       digitalWrite(motor_pin, HIGH);
+//       delay(5000);
+//       digitalWrite(motor_pin, LOW);
+//       delay(5000);
+//     }
+//   }
+// }
 
 // void PWMalter() { //linear changes are hard to see the boundary
 //   int kph = 16;
