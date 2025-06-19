@@ -7,7 +7,7 @@
 #define USMAX 2400                // 舵机最大脉宽（180°）
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
+int count = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -32,6 +32,11 @@ void setup() {
 void loop() {
   // 随机生成一个 Beaufort 风速等级（0 到 7）
   int windBeaufortLevel = random(0, 8);          // 代表风级
+  count++;
+  if (count == 8){
+    delay(3000);
+    count = 0;
+  }
   int servoChannel = windBeaufortLevel;          // 用风级编号选通道
   //int strikePulse = beaufortToPulse(windBeaufortLevel);
 
