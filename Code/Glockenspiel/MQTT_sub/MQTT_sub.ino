@@ -1,6 +1,13 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include "arduino_secrets.h"
+#include <Adafruit_PWMServoDriver.h>
+
+#define SERVO_FREQ 50             // servo PWM renew frequency(HZ)
+#define RETURN_PULSE 1900         // uplift to original point
+#define USMIN 600                 // minimum pulse width
+#define USMAX 2400                // max pulse width
+
 //wifi info
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASS;
@@ -15,14 +22,24 @@ const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+int count = 0;
+bool messageChanged = false;
+String lastMessage = "";
+
 void callback(char* topic, byte* message, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("]: ");
+  String currentMessage = "";
   for (int i = 0; i < length; i++) {
-    Serial.print((char)message[i]);
+    currentMessage += (char)message[i];
   }
-  Serial.println();
+
+  if (currentMessage != lastMessage) {
+    messageChanged = true;
+    Serial.print("Message received from topic [");
+    Serial.print(topic);
+    Serial.print("]: ");
+    Serial.println(currentMessage);
+  }
 }
 
 void connectToWiFi() {
@@ -55,9 +72,17 @@ void setup() {
   delay(1000);
 
   connectToWiFi();
-
+  pwm.begin();
+  pwm.setOscillatorFrequency(27000000); // calibration value
+  pwm.setPWMFreq(SERVO_FREQ);
+  delay(10);
+  for (int i = 0; i < 8; i++) {
+    pwm.writeMicroseconds(i, RETURN_PULSE);
+  }
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+  randomSeed(analogRead(A0));
+  
 }
 
 void loop() {
@@ -65,4 +90,9 @@ void loop() {
     connectToMQTT();
   }
   client.loop();
+
+  if (messageChanged) {
+    messageChanged = false;
+    Serial.println("change detected, trigger the wind chime");
+  }
 }
