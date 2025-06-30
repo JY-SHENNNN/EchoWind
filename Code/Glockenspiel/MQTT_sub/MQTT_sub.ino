@@ -50,10 +50,10 @@ void callback(char* topic, byte* message, unsigned int length) {
 
     Serial.println("---- Last 8 Messages ----");
     for (int i = 0; i < totalMessages; i++) {
-      int idx = (messageIndex + i) % 8;  // 从最旧开始打印
+      int idx = (messageIndex + i) % 8;  // the lateset one to newest one
       Serial.print(i + 1);
       Serial.print(": ");
-      Serial.println(messageHistory[idx]);
+      Serial.println(messageHistory[idx] * 3.6);
     }
     Serial.println("-------------------------");
 
@@ -93,16 +93,27 @@ void connectToMQTT() {
   }
 }
 
-int mapToBeaufort(float kph) {
-  if (kph < 1) return 0;
-  else if (kph <= 5) return 1;
-  else if (kph <= 11) return 2;
-  else if (kph <= 19) return 3;
-  else if (kph <= 28) return 4;
-  else if (kph <= 38) return 5;
-  else if (kph <= 49) return 6;
-  else return 7;  // 50+ kph
+int mapToBeaufort(float ms) {
+  if (ms < 5.4) return 0;
+  else if (ms <= 7.9) return 1;
+  else if (ms <= 10.7) return 2;
+  else if (ms <= 13.8) return 3;
+  else if (ms <= 17.1) return 4;
+  else if (ms <= 20.7) return 5;
+  else if (ms <= 24.4) return 6;
+  else return 7;
 }
+
+// int mapToBeaufort(float kph) {
+//   if (kph < 1) return 0;
+//   else if (kph <= 5) return 1;
+//   else if (kph <= 11) return 2;
+//   else if (kph <= 19) return 3;
+//   else if (kph <= 28) return 4;
+//   else if (kph <= 38) return 5;
+//   else if (kph <= 49) return 6;
+//   else return 7;  // 50+ kph
+// }
 
 
 void setup() {
@@ -132,7 +143,7 @@ void loop() {
     Serial.println("8 value detected, trigger the wind chime");
 
     for (int i=0; i<8; i++){
-      windLevel[i] = mapToBeaufort(messageHistory[i]);
+      windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
     }
     for (int j=7; j>0; j--){
       pwm.writeMicroseconds(windLevel[j], 2400);
@@ -140,19 +151,6 @@ void loop() {
       pwm.writeMicroseconds(windLevel[j], RETURN_PULSE);
       delay(300);
     }
-    // //convert string message to float
-    // float windSpeed = lastMessage.toFloat();
-    // Serial.print("wind speed (kph) :");
-    // Serial.println(windSpeed);
 
-    //convert windspeed to Beaufort 0-7 scale
-    // int windLevel[8] = mapToBeaufort(windSpeed);
-    // Serial.print("Beaufort level: ");
-    // Serial.println(windLevel);
-
-    // pwm.writeMicroseconds(windLevel, 2400);
-    // delay(80);
-    // pwm.writeMicroseconds(windLevel, RETURN_PULSE);
-    // delay(300);
   }
 }
