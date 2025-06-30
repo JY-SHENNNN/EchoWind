@@ -17,8 +17,8 @@ const char* mqtt_server = "mqtt.cetools.org";
 const int mqtt_port = 1884;
 const char* mqtt_user = SECRET_MQTTUSER;    
 const char* mqtt_pass = SECRET_MQTTPASS; 
-const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
-
+const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
+// const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -50,10 +50,9 @@ void callback(char* topic, byte* message, unsigned int length) {
 
     Serial.println("---- Last 8 Messages ----");
     for (int i = 0; i < totalMessages; i++) {
-      int idx = (messageIndex + i) % 8;  // the lateset one to newest one
       Serial.print(i + 1);
       Serial.print(": ");
-      Serial.println(messageHistory[idx] * 3.6);
+      Serial.println(messageHistory[i] * 3.6);
     }
     Serial.println("-------------------------");
 
@@ -138,7 +137,7 @@ void playWindChime(){
     windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
   }
 
-  for (int j=7; j>0; j--){
+  for (int j=0; j<8; j++){
     if(windLevel[j] > 7){
       pwm.writeMicroseconds(windLevel[j] - 8, 2400);
       delay(80);
@@ -168,15 +167,13 @@ void loop() {
     Serial.println("8 value detected, trigger the wind chime");
 
     playWindChime();
-    // for (int i=0; i<8; i++){
-    //   windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
-    // }
-    // for (int j=7; j>0; j--){
-    //   pwm.writeMicroseconds(windLevel[j], 2400);
-    //   delay(80);
-    //   pwm.writeMicroseconds(windLevel[j], RETURN_PULSE);
-    //   delay(300);
-    // }
+    Serial.println("---- level map ----");
+    for (int i = 0; i < 8; i++) {
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.println(windLevel[i]);
+    }
+    Serial.println("-------------------------");
 
   }
 }
