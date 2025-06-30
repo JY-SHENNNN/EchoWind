@@ -61,10 +61,6 @@ void callback(char* topic, byte* message, unsigned int length) {
       totalMessages = 0;
       messageStored = true;
     }
-    // Serial.print("Message received from topic [");
-    // Serial.print(topic);
-    // Serial.print("]: ");
-    // Serial.println(currentMessage);
   }
 }
 
@@ -93,15 +89,20 @@ void connectToMQTT() {
   }
 }
 
-int mapToBeaufort(float ms) {
-  if (ms < 5.4) return 0;
-  else if (ms <= 7.9) return 1;
-  else if (ms <= 10.7) return 2;
-  else if (ms <= 13.8) return 3;
-  else if (ms <= 17.1) return 4;
-  else if (ms <= 20.7) return 5;
-  else if (ms <= 24.4) return 6;
-  else return 7;
+int mapToBeaufort(float ms) { // map to tone by siggle or double
+  if (ms < 0.2) return 0;
+  else if (ms <= 1.5) return 1;
+  else if (ms <= 3.3) return 2;
+  else if (ms <= 5.4) return 3;
+  else if (ms <= 7.9) return 4;
+  else if (ms <= 10.7) return 5;
+  else if (ms <= 13.8) return 6;
+  else if (ms <= 17.1) return 7;
+  else if (ms <= 20.7) return 8;
+  else if (ms <= 24.4) return 9;
+  else if (ms <= 28.4) return 10;
+  else if (ms <= 32.6) return 11;
+  else return 12;
 }
 
 // int mapToBeaufort(float kph) {
@@ -132,6 +133,30 @@ void setup() {
   client.setCallback(callback);
 }
 
+void playWindChime(){
+  for (int i=0; i<8; i++){
+    windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
+  }
+
+  for (int j=7; j>0; j--){
+    if(windLevel[j] > 7){
+      pwm.writeMicroseconds(windLevel[j] - 8, 2400);
+      delay(80);
+      pwm.writeMicroseconds(windLevel[j] - 8, RETURN_PULSE);
+      delay(300);
+      pwm.writeMicroseconds(windLevel[j] - 7, 2400);
+      delay(80);
+      pwm.writeMicroseconds(windLevel[j] - 7, RETURN_PULSE);
+      delay(300);
+    } else {
+      pwm.writeMicroseconds(windLevel[j], 2400);
+      delay(80);
+      pwm.writeMicroseconds(windLevel[j], RETURN_PULSE);
+      delay(300);
+    } 
+  }
+}
+
 void loop() {
   if (!client.connected()) {
     connectToMQTT();
@@ -142,15 +167,16 @@ void loop() {
     messageStored = false;
     Serial.println("8 value detected, trigger the wind chime");
 
-    for (int i=0; i<8; i++){
-      windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
-    }
-    for (int j=7; j>0; j--){
-      pwm.writeMicroseconds(windLevel[j], 2400);
-      delay(80);
-      pwm.writeMicroseconds(windLevel[j], RETURN_PULSE);
-      delay(300);
-    }
+    playWindChime();
+    // for (int i=0; i<8; i++){
+    //   windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
+    // }
+    // for (int j=7; j>0; j--){
+    //   pwm.writeMicroseconds(windLevel[j], 2400);
+    //   delay(80);
+    //   pwm.writeMicroseconds(windLevel[j], RETURN_PULSE);
+    //   delay(300);
+    // }
 
   }
 }
