@@ -25,7 +25,12 @@ PubSubClient client(espClient);
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 int count = 0;
 bool messageChanged = false;
+bool messageStored = false;
 String lastMessage = "";
+float messageHistory[8]; //used to store newest 8 message
+int windLevel[8]; //used to store newest Beaufort level
+int messageIndex = 0;
+int totalMessages = 0;
 
 void callback(char* topic, byte* message, unsigned int length) {
   String currentMessage = "";
@@ -35,10 +40,31 @@ void callback(char* topic, byte* message, unsigned int length) {
 
   if (currentMessage != lastMessage) {
     messageChanged = true;
-    Serial.print("Message received from topic [");
-    Serial.print(topic);
-    Serial.print("]: ");
-    Serial.println(currentMessage);
+    lastMessage = currentMessage;
+    // store the value
+
+    
+    messageHistory[messageIndex] = currentMessage.toFloat();
+    messageIndex = (messageIndex + 1) % 8;
+    if (totalMessages < 8) totalMessages++;
+
+    Serial.println("---- Last 8 Messages ----");
+    for (int i = 0; i < totalMessages; i++) {
+      int idx = (messageIndex + i) % 8;  // 从最旧开始打印
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.println(messageHistory[idx]);
+    }
+    Serial.println("-------------------------");
+
+    if (totalMessages == 8){
+      totalMessages = 0;
+      messageStored = true;
+    }
+    // Serial.print("Message received from topic [");
+    // Serial.print(topic);
+    // Serial.print("]: ");
+    // Serial.println(currentMessage);
   }
 }
 
@@ -67,6 +93,18 @@ void connectToMQTT() {
   }
 }
 
+int mapToBeaufort(float kph) {
+  if (kph < 1) return 0;
+  else if (kph <= 5) return 1;
+  else if (kph <= 11) return 2;
+  else if (kph <= 19) return 3;
+  else if (kph <= 28) return 4;
+  else if (kph <= 38) return 5;
+  else if (kph <= 49) return 6;
+  else return 7;  // 50+ kph
+}
+
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -81,8 +119,6 @@ void setup() {
   }
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
-  randomSeed(analogRead(A0));
-  
 }
 
 void loop() {
@@ -91,8 +127,32 @@ void loop() {
   }
   client.loop();
 
-  if (messageChanged) {
-    messageChanged = false;
-    Serial.println("change detected, trigger the wind chime");
+  if (messageStored) {
+    messageStored = false;
+    Serial.println("8 value detected, trigger the wind chime");
+
+    for (int i=0; i<8; i++){
+      windLevel[i] = mapToBeaufort(messageHistory[i]);
+    }
+    for (int j=7; j>0; j--){
+      pwm.writeMicroseconds(windLevel[j], 2400);
+      delay(80);
+      pwm.writeMicroseconds(windLevel[j], RETURN_PULSE);
+      delay(300);
+    }
+    // //convert string message to float
+    // float windSpeed = lastMessage.toFloat();
+    // Serial.print("wind speed (kph) :");
+    // Serial.println(windSpeed);
+
+    //convert windspeed to Beaufort 0-7 scale
+    // int windLevel[8] = mapToBeaufort(windSpeed);
+    // Serial.print("Beaufort level: ");
+    // Serial.println(windLevel);
+
+    // pwm.writeMicroseconds(windLevel, 2400);
+    // delay(80);
+    // pwm.writeMicroseconds(windLevel, RETURN_PULSE);
+    // delay(300);
   }
 }
