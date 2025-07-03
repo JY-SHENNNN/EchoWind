@@ -4,10 +4,9 @@
 #include <Adafruit_PWMServoDriver.h>
 
 #define SERVO_FREQ 50             // servo PWM renew frequency(HZ)
-#define RETURN_PULSE 1900         // uplift to original point
 #define USMIN 600                 // minimum pulse width
 #define USMAX 2400                // max pulse width
-
+#define NUM_SERVOS 8
 //wifi info
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASS;
@@ -17,8 +16,8 @@ const char* mqtt_server = "mqtt.cetools.org";
 const int mqtt_port = 1884;
 const char* mqtt_user = SECRET_MQTTUSER;    
 const char* mqtt_pass = SECRET_MQTTPASS; 
-const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
-// const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
+//const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
+const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -31,6 +30,15 @@ float messageHistory[8]; //used to store newest 8 message
 int windLevel[8]; //used to store newest Beaufort level
 int messageIndex = 0;
 int totalMessages = 0;
+
+int strikePositions[NUM_SERVOS] = {
+  1980, 1980, 2150, 2100, 2200, 2150, 2100, 2100
+};
+
+// origin
+int restPositions[NUM_SERVOS] = {
+  1850, 1850, 1930, 1930, 1900, 1900, 1900, 1900
+};
 
 void callback(char* topic, byte* message, unsigned int length) {
   String currentMessage = "";
@@ -125,9 +133,11 @@ void setup() {
   pwm.setOscillatorFrequency(27000000); // calibration value
   pwm.setPWMFreq(SERVO_FREQ);
   delay(10);
-  for (int i = 0; i < 8; i++) {
-    pwm.writeMicroseconds(i, RETURN_PULSE);
+  // all servo back to origin
+  for (int i = 0; i < NUM_SERVOS; i++) {
+    pwm.writeMicroseconds(i, restPositions[i]);
   }
+
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
 }
@@ -139,19 +149,20 @@ void playWindChime(){
 
   for (int j=0; j<8; j++){
     if(windLevel[j] > 7){
-      pwm.writeMicroseconds(windLevel[j] - 8, 2400);
-      delay(80);
-      pwm.writeMicroseconds(windLevel[j] - 8, RETURN_PULSE);
-      delay(300);
-      pwm.writeMicroseconds(windLevel[j] - 7, 2400);
-      delay(80);
-      pwm.writeMicroseconds(windLevel[j] - 7, RETURN_PULSE);
-      delay(300);
+      pwm.writeMicroseconds(windLevel[j] - 8, strikePositions[windLevel[j] - 8]);
+      delay(40);  // duration of click
+      pwm.writeMicroseconds(windLevel[j] - 8, restPositions[windLevel[j] - 8]);
+      delay(500); // rebounce
+
+      pwm.writeMicroseconds(windLevel[j] - 7, strikePositions[windLevel[j] - 7]);
+      delay(40);  // duration of click
+      pwm.writeMicroseconds(windLevel[j] - 7, restPositions[windLevel[j] - 7]);
+      delay(500); // rebounce
     } else {
-      pwm.writeMicroseconds(windLevel[j], 2400);
-      delay(80);
-      pwm.writeMicroseconds(windLevel[j], RETURN_PULSE);
-      delay(300);
+      pwm.writeMicroseconds(windLevel[j], strikePositions[windLevel[j]]);
+      delay(40);  // duration of click
+      pwm.writeMicroseconds(windLevel[j], restPositions[windLevel[j]]);
+      delay(500); // rebounce
     } 
   }
 }

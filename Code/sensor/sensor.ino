@@ -16,7 +16,7 @@ PubSubClient client(wifiClient);
 extern "C" char* dtostrf(double val, signed char width, unsigned char prec, char* s);
 
 // ====== Wind Sensor ======
-#define windSensorPin 8
+#define windSensorPin 14
 volatile int pulseCount = 0;
 unsigned long lastSampleTime = 0;
 const unsigned long sampleInterval = 3000; // 3s sampling
