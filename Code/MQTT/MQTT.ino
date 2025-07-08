@@ -3,8 +3,8 @@
 #include "arduino_secrets.h"
 
 #define motor_pin 5
+#define button_pin 2  //added button
 
-// Replace with your own WiFi credentials
 const char* ssid          = SECRET_SSID;
 const char* password      = SECRET_PASS;
 const char* mqtt_username = SECRET_MQTTUSER;
@@ -13,7 +13,7 @@ const char* mqtt_password = SECRET_MQTTPASS;
 const char* mqtt_server = "mqtt.cetools.org";
 const int mqtt_port = 1884;
 const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
-
+// const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 
@@ -22,7 +22,6 @@ float speed_kph;
 bool messageChanged = false;
 bool enableMotor = false;
 
-// Function to reconnect to the MQTT broker
 void reconnectMQTT() {
   while (!client.connected()) {
     Serial.print("Attempting to connect to MQTT broker...");
@@ -42,7 +41,6 @@ void reconnectMQTT() {
   }
 }
 
-// Callback function for received MQTT messages
 void callback(char* topic, byte* payload, unsigned int length) {
   String currentMessage = "";
   for (int i = 0; i < length; i++) {
@@ -63,30 +61,28 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void PWMWave() {
   int pwmValue = getPwmValue(speed_kph);
-  analogWrite(motor_pin, pwmValue); 
+  analogWrite(motor_pin, pwmValue);
   Serial.println(pwmValue);
   delay(1000);
   analogWrite(motor_pin, LOW);
   delay(2000);
-
 }
 
-
 int getPwmValue(float kph) {
-  if (kph < 1) return map(kph, 0, 1, 0, 10);    // 0-10 KPH → PWM 30-80 weak
-  else if (kph < 5) return map(kph, 1, 5, 10, 30); // 10-30 → PWM 80-180 
+  if (kph < 1) return map(kph, 0, 1, 0, 10);
+  else if (kph < 5) return map(kph, 1, 5, 10, 30);
   else if (kph < 11) return map(kph, 5, 11, 30, 80);
   else if (kph < 19) return map(kph, 11, 19, 80, 120);
   else if (kph < 28) return map(kph, 19, 28, 120, 180);
-  else return map(kph, 28, 50, 180, 255);         // 30-50 → PWM 180-255 strong
+  else return map(kph, 28, 50, 180, 255);
 }
-
 
 void setup() {
   Serial.begin(9600);
   delay(1000);
   pinMode(motor_pin, OUTPUT);
-  // Connect to WiFi
+  pinMode(button_pin, INPUT_PULLUP);  // 新增：启用内部上拉
+
   Serial.print("Connecting to WiFi: ");
   Serial.println(ssid);
   while (WiFi.begin(ssid, password) != WL_CONNECTED) {
@@ -97,7 +93,6 @@ void setup() {
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  // Set MQTT server and callback function
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
 }
@@ -106,14 +101,11 @@ void loop() {
   if (!client.connected()) {
     reconnectMQTT();
   }
-  client.loop();  // Process incoming MQTT messages
+  client.loop();
 
-  if (messageChanged) {
+  if (messageChanged && digitalRead(button_pin) == LOW) {  // update when the button pressed
     messageChanged = false;
-    Serial.println("change detected, trigger the wind chime");
-    enableMotor = true;
-    //driveServo();
-    //PWMalter();
+    Serial.println("Button pressed, wind changed, trigger the wind chime");
     PWMWave();
   }
 }
