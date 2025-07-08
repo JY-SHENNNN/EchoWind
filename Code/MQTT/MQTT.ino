@@ -61,44 +61,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
   lastMessage = currentMessage;
 }
 
-
-// void driveServo() {
-//   if (enableMotor){
-//     enableMotor = false;
-//     int approxInt = round(speed_kph);
-//     if (approxInt <= 8){
-//       digitalWrite(motor_pin, HIGH);
-//       delay(500);
-//       digitalWrite(motor_pin, LOW);
-//       delay(5000);
-//     } else if (approxInt > 8 && approxInt <= 9) {
-//       digitalWrite(motor_pin, HIGH);
-//       delay(1000);
-//       digitalWrite(motor_pin, LOW);
-//       delay(5000);
-//     } else if (approxInt > 9 && approxInt <= 10) {
-//       digitalWrite(motor_pin, HIGH);
-//       delay(3000);
-//       digitalWrite(motor_pin, LOW);
-//       delay(5000);
-//     } else if (approxInt > 10){
-//       digitalWrite(motor_pin, HIGH);
-//       delay(5000);
-//       digitalWrite(motor_pin, LOW);
-//       delay(5000);
-//     }
-//   }
-// }
-
-// void PWMalter() { //linear changes are hard to see the boundary
-//   int kph = 16;
-//   //int pwmValue = map(speed_kph, 0, 20, 0, 150); // linear reflect speed to PWM
-//   analogWrite(motor_pin, pwmValue); 
-//   Serial.println("pwmvalue");
-//   Serial.print(pwmValue);
-//   delay(5000); 
-// }
-
 void PWMWave() {
   int pwmValue = getPwmValue(speed_kph);
   analogWrite(motor_pin, pwmValue); 
@@ -106,38 +68,6 @@ void PWMWave() {
   delay(1000);
   analogWrite(motor_pin, LOW);
   delay(2000);
-  // analogWrite(motor_pin, 30); 
-  // Serial.println(30);
-  // //Serial.print(pwmValue);
-  // delay(1000);
-  // analogWrite(motor_pin, LOW);
-  // delay(2000);
-  // analogWrite(motor_pin, LOW);
-  // delay(2000);
-  // analogWrite(motor_pin, 80); 
-  // Serial.println(80);
-  // //Serial.print(pwmValue);
-  // delay(1000);
-  // analogWrite(motor_pin, LOW);
-  // delay(2000);
-  // analogWrite(motor_pin, 120); 
-  // Serial.println(120);
-  // //Serial.print(pwmValue);
-  // delay(1000);
-  // analogWrite(motor_pin, LOW);
-  // delay(2000);
-  // analogWrite(motor_pin, 180); 
-  // Serial.println(180);
-  // //Serial.print(pwmValue);
-  // delay(1000);
-  // analogWrite(motor_pin, LOW);
-  // delay(2000);
-  // analogWrite(motor_pin, 255); 
-  // Serial.println(255);
-  // //Serial.print(pwmValue);
-  // delay(1000);
-  // analogWrite(motor_pin, LOW);
-  // delay(2000);
 
 }
 
