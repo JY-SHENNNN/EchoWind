@@ -46,7 +46,8 @@ int BPW[NUM_SERVOS] = {
 
 int rest[NUM_SERVOS] = {
   500, 250, 125, 62, 40
-}
+};
+
 void callback(char* topic, byte* message, unsigned int length) {
   String currentMessage = "";
   for (int i = 0; i < length; i++) {
@@ -86,6 +87,9 @@ void connectToWiFi() {
     Serial.print(".");
   }
   Serial.println("\nConnected to WiFi");
+  Serial.print("WiFi IP: ");
+  Serial.println(WiFi.localIP());
+
 }
 
 void connectToMQTT() {
@@ -129,7 +133,30 @@ int mapToBeaufort(float ms) { // map to tone by siggle or double
 //   else if (kph <= 49) return 6;
 //   else return 7;  // 50+ kph
 // }
+void playWindChime(){
+  for (int i=0; i<8; i++){
+    windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
+  }
 
+  for (int j=0; j<8; j++){
+    if(windLevel[j] > 7){
+      pwm.writeMicroseconds(windLevel[j] - 8, strikePositions[windLevel[j] - 8]);
+      delay(40);  // duration of click
+      pwm.writeMicroseconds(windLevel[j] - 8, restPositions[windLevel[j] - 8]);
+      delay(rest[j]); // rebounce
+
+      pwm.writeMicroseconds(windLevel[j] - 7, strikePositions[windLevel[j] - 7]);
+      delay(40);  // duration of click
+      pwm.writeMicroseconds(windLevel[j] - 7, restPositions[windLevel[j] - 7]);
+      delay(rest[j]); // rebounce
+    } else {
+      pwm.writeMicroseconds(windLevel[j], strikePositions[windLevel[j]]);
+      delay(40);  // duration of click
+      pwm.writeMicroseconds(windLevel[j], restPositions[windLevel[j]]);
+      delay(BPW[j]); // rebounce
+    } 
+  }
+}
 
 void setup() {
   Serial.begin(115200);
@@ -147,34 +174,17 @@ void setup() {
 
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+  connectToMQTT();
 }
 
-void playWindChime(){
-  for (int i=0; i<8; i++){
-    windLevel[i] = mapToBeaufort(messageHistory[i] * 3.6);
-  }
 
-  for (int j=0; j<8; j++){
-    if(windLevel[j] > 7){
-      pwm.writeMicroseconds(windLevel[j] - 8, strikePositions[windLevel[j] - 8]);
-      delay(rest[j]);  // duration of click
-      pwm.writeMicroseconds(windLevel[j] - 8, restPositions[windLevel[j] - 8]);
-      delay(500); // rebounce
-
-      pwm.writeMicroseconds(windLevel[j] - 7, strikePositions[windLevel[j] - 7]);
-      delay(rest[j]);  // duration of click
-      pwm.writeMicroseconds(windLevel[j] - 7, restPositions[windLevel[j] - 7]);
-      delay(500); // rebounce
-    } else {
-      pwm.writeMicroseconds(windLevel[j], strikePositions[windLevel[j]]);
-      delay(BPW[j]);  // duration of click
-      pwm.writeMicroseconds(windLevel[j], restPositions[windLevel[j]]);
-      delay(500); // rebounce
-    } 
-  }
-}
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    connectToWiFi();
+    delay(1000);
+  }
+
   if (!client.connected()) {
     connectToMQTT();
   }

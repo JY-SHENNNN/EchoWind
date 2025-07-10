@@ -22,6 +22,18 @@ float speed_kph;
 bool messageChanged = false;
 bool enableMotor = false;
 
+void connectToWiFi() {
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected to WiFi");
+  Serial.print("WiFi IP: ");
+  Serial.println(WiFi.localIP());
+}
+
 void reconnectMQTT() {
   while (!client.connected()) {
     Serial.print("Attempting to connect to MQTT broker...");
@@ -81,23 +93,19 @@ void setup() {
   Serial.begin(9600);
   delay(1000);
   pinMode(motor_pin, OUTPUT);
-  pinMode(button_pin, INPUT_PULLUP);  // 新增：启用内部上拉
+  pinMode(button_pin, INPUT_PULLUP);  // new added pull up resister
 
-  Serial.print("Connecting to WiFi: ");
-  Serial.println(ssid);
-  while (WiFi.begin(ssid, password) != WL_CONNECTED) {
-    Serial.print(".");
-    delay(1000);
-  }
-  Serial.println("\nWiFi connected!");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
+  connectToWiFi();
 
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    connectToWiFi();
+    delay(1000);
+  }
   if (!client.connected()) {
     reconnectMQTT();
   }

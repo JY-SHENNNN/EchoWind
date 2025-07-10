@@ -16,7 +16,7 @@ PubSubClient client(wifiClient);
 extern "C" char* dtostrf(double val, signed char width, unsigned char prec, char* s);
 
 // ====== Wind Sensor ======
-#define windSensorPin 6
+#define windSensorPin 7
 volatile int pulseCount = 0;
 unsigned long lastSampleTime = 0;
 const unsigned long sampleInterval = 3000; // 3s sampling
@@ -36,12 +36,13 @@ void setup() {
   pinMode(windSensorPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(windSensorPin), countPulse, FALLING);
 
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-  }
+  connectToWiFi();
+ // WiFi.begin(ssid, password);
+  // Serial.print("Connecting to WiFi");
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.print(".");
+  // }
   Serial.println("\nWiFi connected");
 
   client.setServer(mqtt_server, mqtt_port);
@@ -53,6 +54,10 @@ void setup() {
 
 // ====== Main Loop ======
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    connectToWiFi();
+    delay(1000);
+  }
   if (!client.connected()) {
     connectToMQTT();
   }
@@ -109,4 +114,16 @@ void sendMQTT(float windSpeed) {
   } else {
     Serial.println("Failed to publish");
   }
+}
+
+void connectToWiFi() {
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected to WiFi");
+  Serial.print("WiFi IP: ");
+  Serial.println(WiFi.localIP());
 }
