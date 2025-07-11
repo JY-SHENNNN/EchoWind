@@ -36,13 +36,7 @@ void setup() {
   pinMode(windSensorPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(windSensorPin), countPulse, FALLING);
 
-  connectToWiFi();
- // WiFi.begin(ssid, password);
-  // Serial.print("Connecting to WiFi");
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(1000);
-  //   Serial.print(".");
-  // }
+  connectToWiFiWithTimeout();
   Serial.println("\nWiFi connected");
 
   client.setServer(mqtt_server, mqtt_port);
@@ -55,7 +49,7 @@ void setup() {
 // ====== Main Loop ======
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    connectToWiFi();
+    connectToWiFiWithTimeout();
     delay(1000);
   }
   if (!client.connected()) {
@@ -116,14 +110,23 @@ void sendMQTT(float windSpeed) {
   }
 }
 
-void connectToWiFi() {
+void connectToWiFiWithTimeout() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+  unsigned long startAttemptTime = millis();
+
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 15000) {
+    delay(500);
     Serial.print(".");
   }
-  Serial.println("\nConnected to WiFi");
-  Serial.print("WiFi IP: ");
-  Serial.println(WiFi.localIP());
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWiFi connected!");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi connection failed. Restarting...");
+    NVIC_SystemReset();  // restart to connect
+  }
 }
+

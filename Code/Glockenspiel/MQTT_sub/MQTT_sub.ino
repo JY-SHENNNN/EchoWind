@@ -2,6 +2,7 @@
 #include <PubSubClient.h>
 #include "arduino_secrets.h"
 #include <Adafruit_PWMServoDriver.h>
+#include "esp_system.h"
 
 #define SERVO_FREQ 50             // servo PWM renew frequency(HZ)
 #define USMIN 600                 // minimum pulse width
@@ -16,8 +17,8 @@ const char* mqtt_server = "mqtt.cetools.org";
 const int mqtt_port = 1884;
 const char* mqtt_user = SECRET_MQTTUSER;    
 const char* mqtt_pass = SECRET_MQTTPASS; 
-//const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
-const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
+const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
+//const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -79,18 +80,25 @@ void callback(char* topic, byte* message, unsigned int length) {
   }
 }
 
-void connectToWiFi() {
+void connectToWiFiWithTimeout() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+  unsigned long startTime = millis();
+
+  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 15000) {
+    delay(500);
     Serial.print(".");
   }
-  Serial.println("\nConnected to WiFi");
-  Serial.print("WiFi IP: ");
-  Serial.println(WiFi.localIP());
 
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWiFi connected!");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi failed. Restarting ESP32...");
+    esp_restart();  // restart
+  }
 }
+
 
 void connectToMQTT() {
   while (!client.connected()) {
@@ -162,7 +170,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  connectToWiFi();
+  connectToWiFiWithTimeout();
   pwm.begin();
   pwm.setOscillatorFrequency(27000000); // calibration value
   pwm.setPWMFreq(SERVO_FREQ);
@@ -181,7 +189,7 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    connectToWiFi();
+    connectToWiFiWithTimeout();
     delay(1000);
   }
 

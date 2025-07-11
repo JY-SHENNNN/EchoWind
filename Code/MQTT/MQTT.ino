@@ -12,8 +12,8 @@ const char* mqtt_password = SECRET_MQTTPASS;
 
 const char* mqtt_server = "mqtt.cetools.org";
 const int mqtt_port = 1884;
-const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
-// const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
+//const char* mqtt_topic = "UCL/OPS/Garden/WST/dvp2/windSpeed_kph";
+const char* mqtt_topic = "student/zczqjs2/windSpeed_kph";
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 
@@ -22,16 +22,24 @@ float speed_kph;
 bool messageChanged = false;
 bool enableMotor = false;
 
-void connectToWiFi() {
+void connectToWiFiWithTimeout() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+  unsigned long startAttemptTime = millis();
+
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 15000) {
+    delay(500);
     Serial.print(".");
   }
-  Serial.println("\nConnected to WiFi");
-  Serial.print("WiFi IP: ");
-  Serial.println(WiFi.localIP());
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWiFi connected!");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi connection failed. Restarting...");
+    NVIC_SystemReset();  // restart to connect
+  }
 }
 
 void reconnectMQTT() {
@@ -95,7 +103,7 @@ void setup() {
   pinMode(motor_pin, OUTPUT);
   pinMode(button_pin, INPUT_PULLUP);  // new added pull up resister
 
-  connectToWiFi();
+  connectToWiFiWithTimeout();
 
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
@@ -103,7 +111,7 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    connectToWiFi();
+    connectToWiFiWithTimeout();
     delay(1000);
   }
   if (!client.connected()) {
