@@ -1,37 +1,28 @@
-#include <Servo.h>
-
-Servo myservo;  // create servo object to control a servo
-int speed = 0;  // speed value will be randomly generated
+#define button_pin 2
+#define motor_pin 5
 
 void setup() {
-  myservo.attach(2);  // attach the servo on pin 2
-  randomSeed(analogRead(0));  // initialize random number generator
+  pinMode(button_pin, INPUT_PULLUP);  // 按钮有上拉电阻
+  pinMode(motor_pin, OUTPUT);
+  randomSeed(analogRead(0));  // 初始化随机数种子
+  Serial.begin(9600);
 }
 
 void loop() {
-  speed = random(0, 21);  // generate a random speed between 0 and 20
-  Serial.print("Speed = ");
-  Serial.println(speed);
+  if (digitalRead(button_pin) == LOW) {
+    int speed = random(0, 21);            // 生成 0-20 的随机数
+    int pwmValue = map(speed, 0, 20, 0, 255);  // 映射到 0-255
+    Serial.print("Speed = ");
+    Serial.print(speed);
+    Serial.print(" | PWM = ");
+    Serial.println(pwmValue);
 
-  if (speed <= 10) {
-    for (int pos = 0; pos <= 30; pos++) {
-      myservo.write(pos);
-      delay(15);  // small delay between steps for smooth motion
-    }
-    for (int pos = 30; pos >= 0; pos--) {
-      myservo.write(pos);
-      delay(15);
-    }
-  } else if (speed > 10) {
-    for (int pos = 0; pos <= 180; pos++) {
-      myservo.write(pos);
-      delay(10);
-    }
-    for (int pos = 180; pos >= 0; pos--) {
-      myservo.write(pos);
-      delay(10);
-    }
+    analogWrite(motor_pin, 255);  // 启动电机
+    Serial.print("trigger");
+    delay(5000);  // 运行 5 秒
+
+    analogWrite(motor_pin, 0);         // 停止电机
+    Serial.println("Motor stopped.");
+    delay(10000);  // 停止 10 秒
   }
-
-  delay(5000);  // wait for 20 seconds before next cycle
 }

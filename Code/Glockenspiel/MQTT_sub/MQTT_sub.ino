@@ -3,11 +3,14 @@
 #include "arduino_secrets.h"
 #include <Adafruit_PWMServoDriver.h>
 #include "esp_system.h"
+#include "esp_sleep.h"
+
 
 #define SERVO_FREQ 50             // servo PWM renew frequency(HZ)
 #define USMIN 600                 // minimum pulse width
 #define USMAX 2400                // max pulse width
 #define NUM_SERVOS 8
+#define button_pin 5
 //wifi info
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASS;
@@ -169,7 +172,7 @@ void playWindChime(){
 void setup() {
   Serial.begin(115200);
   delay(1000);
-
+  pinMode(button_pin, INPUT_PULLUP);  // new added pull up resister
   connectToWiFiWithTimeout();
   pwm.begin();
   pwm.setOscillatorFrequency(27000000); // calibration value
@@ -198,10 +201,10 @@ void loop() {
   }
   client.loop();
 
-  if (messageStored) {
+  if (messageStored && digitalRead(button_pin) == LOW) {
     messageStored = false;
     Serial.println("8 value detected, trigger the wind chime");
-
+    
     playWindChime();
     Serial.println("---- level map ----");
     for (int i = 0; i < 8; i++) {
@@ -211,5 +214,14 @@ void loop() {
     }
     Serial.println("-------------------------");
 
+  }
+
+  if (digitalRead(button_pin) == HIGH) {
+    Serial.println("Button not pressed, going to deep sleep...");
+    delay(100);  // 防抖
+
+    // 设置 GPIO 唤醒源（下降沿唤醒）
+    esp_sleep_enable_ext1_wakeup((1ULL << GPIO_NUM_5), ESP_EXT1_WAKEUP_ALL_LOW);
+    esp_deep_sleep_start();
   }
 }

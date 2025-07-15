@@ -1,4 +1,4 @@
-#define motor_pin 1
+#define motor_pin 5
 void setup() {
   // put your setup code here, to run once:
   pinMode(motor_pin, OUTPUT);

@@ -80,7 +80,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 }
 
 void PWMWave() {
-  int pwmValue = getPwmValue(speed_kph);
+  int pwmValue = getPwmValue(speed_kph * 3.6 );
   analogWrite(motor_pin, pwmValue);
   Serial.println(pwmValue);
   delay(1000);
@@ -88,13 +88,21 @@ void PWMWave() {
   delay(2000);
 }
 
-int getPwmValue(float kph) {
-  if (kph < 1) return map(kph, 0, 1, 0, 10);
-  else if (kph < 5) return map(kph, 1, 5, 10, 30);
-  else if (kph < 11) return map(kph, 5, 11, 30, 80);
-  else if (kph < 19) return map(kph, 11, 19, 80, 120);
-  else if (kph < 28) return map(kph, 19, 28, 120, 180);
-  else return map(kph, 28, 50, 180, 255);
+// int getPwmValue(float kph) {
+//   if (kph < 1) return map(kph, 0, 1, 0, 10);
+//   else if (kph < 5) return map(kph, 1, 5, 10, 30);
+//   else if (kph < 11) return map(kph, 5, 11, 30, 80);
+//   else if (kph < 19) return map(kph, 11, 19, 80, 120);
+//   else if (kph < 28) return map(kph, 19, 28, 120, 180);
+//   else return map(kph, 28, 50, 180, 255);
+// }
+
+int getPwmValue(float ms) {
+  if (ms < 3.3) return map(ms, 0, 3.3, 0, 51);
+  else if (ms < 10.7) return map(ms, 3.3, 10.7, 51, 102);
+  else if (ms < 20.7) return map(ms, 10.7, 20.7, 102, 153);
+  else if (ms < 32.6) return map(ms, 20.7, 32.6, 153, 204);
+  else return map(ms, 32.6, 50, 204, 255);
 }
 
 void setup() {
