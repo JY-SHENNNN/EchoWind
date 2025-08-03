@@ -16,7 +16,7 @@ int strikePositions[NUM_SERVOS] = {
 
 // origin
 int restPositions[NUM_SERVOS] = {
-  1850, 1850, 1930, 1900, 1900, 1900, 1900, 1900
+  1850, 1850, 1930, 1900, 1900, 1900, 1900, 1920
 };
 
 void setup() {

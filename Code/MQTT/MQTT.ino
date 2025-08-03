@@ -22,6 +22,11 @@ float speed_kph;
 bool messageChanged = false;
 bool enableMotor = false;
 
+bool lastButtonState = HIGH;         //（INPUT_PULLUP）
+bool currentButtonState;
+unsigned long lastDebounceTime = 0;
+const unsigned long debounceDelay = 50;
+
 void connectToWiFiWithTimeout() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
@@ -83,9 +88,9 @@ void PWMWave() {
   int pwmValue = getPwmValue(speed_kph * 3.6 );
   analogWrite(motor_pin, pwmValue);
   Serial.println(pwmValue);
-  delay(1000);
+  delay(5000);
   analogWrite(motor_pin, LOW);
-  delay(2000);
+  delay(500);
 }
 
 // int getPwmValue(float kph) {
@@ -127,9 +132,24 @@ void loop() {
   }
   client.loop();
 
-  if (messageChanged && digitalRead(button_pin) == LOW) {  // update when the button pressed
-    messageChanged = false;
-    Serial.println("Button pressed, wind changed, trigger the wind chime");
-    PWMWave();
+  int reading = digitalRead(button_pin);
+
+  // 防抖处理
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
   }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != currentButtonState) {
+      currentButtonState = reading;
+      // button state changed, trigger
+      Serial.println("Button state changed. Triggering wind chime.");
+      Serial.print("Using last received wind speed: ");
+      Serial.println(lastMessage);
+      PWMWave();  //anable motor
+    }
+  }
+
+  lastButtonState = reading;  // update state
 }
+
