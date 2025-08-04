@@ -171,6 +171,8 @@ void setup() {
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
   connectToMQTT();
+  esp_sleep_enable_ext1_wakeup(1ULL << GPIO_NUM_5, ESP_EXT1_WAKEUP_ALL_LOW);
+
 }
 
 void loop() {
@@ -192,8 +194,8 @@ void loop() {
   }
 
   if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (currentButtonState != lastButtonState) {
-      lastButtonState = currentButtonState;
+    if (digitalRead(button_pin) == LOW) {
+      //lastButtonState = currentButtonState;
 
       Serial.println("Button state changed → start collecting 8 wind speeds");
 
@@ -216,6 +218,9 @@ void loop() {
       collectingData = false;
       Serial.println("Data collection done. Now playing actual tones...");
       playCollectedChime();
+      delay(1000);
+      esp_deep_sleep_start();
+
     }
   }
 }
