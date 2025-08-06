@@ -5,6 +5,14 @@ This project explores how real-time wind data can be translated into sound throu
     <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/device.jpg" width="800" height="400">
 </div>
 
+
+https://github.com/user-attachments/assets/5dc4c54e-c8f3-4238-8c74-f22c6738b43d
+
+
+https://github.com/user-attachments/assets/465d06ca-0d83-4de3-b87b-9f1a49d4c236
+
+
+
 ---
 
 ## 📡 System Overview
