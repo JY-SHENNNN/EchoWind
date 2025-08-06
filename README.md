@@ -62,3 +62,6 @@ circuit diagram for xylophone:
 2. https://github.com/adafruit/Fritzing-Library
 3. https://github.com/johnyHV/fritzing-parts/blob/master/Servo%20MG90S.fzpz
  ```
+
+## Reference
+https://www.rkonfly.cn/index.php/index/shows/catid/42/id/95.html
