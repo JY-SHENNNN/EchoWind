@@ -1,30 +1,39 @@
-# EchoWind: A Connected System for Wind Sensin and Sonified Feedback
+# 🌬️ EchoWind: A Connected System for Wind Sensing and Sonified Feedback
 
-This project explores how real-time wind data can be translated into sound through two physical, interactive devices designed for indoor environments — a vibration-driven wind chime and a servo-controlled xylophone. The system aims to enhance environmental perception and foster biophilic interaction in architectural spaces.
-<div align=center>
-    <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/device.jpg" width="800" height="400">
+This project explores how **real-time wind data** can be translated into **sound** through two interactive physical devices — a **vibration-driven wind chime** and a **servo-controlled xylophone**.  
+The system aims to **enhance environmental perception** and foster **biophilic interaction** in architectural spaces.
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/device.jpg" width="800" height="400">
 </div>
 
+---
 
-https://github.com/user-attachments/assets/5dc4c54e-c8f3-4238-8c74-f22c6738b43d
+## 🎯 Background & Motivation
+Humans in indoor environments have limited perception of natural wind.  
+EchoWind bridges this sensory gap by **sonifying wind speed** detected near the building, creating a tangible connection between **outdoor natural phenomena** and **indoor experiences**.  
+The project draws inspiration from *biophilic design* principles and aims to provide:  
+- **Sensory enrichment** in architectural spaces  
+- **Ambient awareness** of changing weather  
+- **Interactive art installations** for museums or public spaces  
 
+---
 
-https://github.com/user-attachments/assets/465d06ca-0d83-4de3-b87b-9f1a49d4c236
-
-
+## 🎥 Demo
+ 
 
 ---
 
 ## 📡 System Overview
 
-- **Sensor Node**: An anemometer reads wind speed and publishes real-time values to an MQTT broker.
+- **Sensor Node**: An anemometer measures wind speed and publishes real-time data to an MQTT broker.
 - **Actuator Nodes**: Two microcontrollers subscribe to the wind topic and sonify the data:
-  - 🎐 **Wind Chime**: Uses a vibration motor to activate metal tubes based on wind intensity.
-  - 🎹 **Xylophone**: Uses 8 MG90S servos to strike keys mapped to wind levels.
+  - 🎐 **Wind Chime** — Vibration motor strikes metal tubes based on wind intensity.
+  - 🎹 **Xylophone** — 8× MG90S servos hit keys mapped to wind levels.
 
 <div align=center>
   <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/mainflow.png" width="800">
-  <p><strong>Fig. 1.</strong> System overview</p>
+  <p><strong>Fig. 1.</strong> System Overview</p>
 </div>
 
 ---
@@ -32,30 +41,54 @@ https://github.com/user-attachments/assets/465d06ca-0d83-4de3-b87b-9f1a49d4c236
 ## ⚙️ Hardware
 | Component        | Description                                                                 |
 |------------------|-----------------------------------------------------------------------------|
-| **Anemometer**   | Wind speed sensor (0-70 m/s), placed near in a opendoor area              |
-| **Wind Chime**   | Controlled by Arduino MKR1010, powered via MOSFET-driven vibration motor    |
-| **Xylophone**    | Controlled by ESP32-C6 with 8x MG90S servos           |
-| **Power Supply** | Three 5V 2A USB power adapters, optional lithium battery backup             |
+| **Anemometer**   | Wind speed sensor (0–70 m/s), placed in an open-door area                   |
+| **Wind Chime**   | Arduino MKR1010 + MOSFET-driven vibration motor                             |
+| **Xylophone**    | ESP32-C6 Feather board + 8× MG90S servos                                                   |
+| **Power Supply** | Three 5V 2A USB adapters (optional lithium battery backup)                  |
 
 ---
 
-## 🔌 Connections
-circuit diagram for anemometer:
+## 🔌 Circuit Diagrams
+**Sensor Node**  
 <div align=center>
     <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/sensorcircuit.png">
- </div>   
+</div>
 
-circuit diagram for windchime:
+**Wind Chime**  
 <div align=center>
     <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/circuit.png" width="800" height="400">
 </div>
-circuit diagram for xylophone:
+
+**Xylophone**  
 <div align=center>
     <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/circuit2.png" width="800" height="400">
- </div>
+</div>
 
- ---
+---
 
+## 🛠 Installation & Setup
+
+### 1️⃣ Hardware Assembly
+- **Anemometer:** Connect the anemometer to the Arduino MKR1010 as shown in the diagrams above.
+- **Wind Chime:** Attach vibration motor for wind chime to the MKR1010 and connect to the 5V power supply.
+
+- **Xylophone:** Connect the ESP32-C6 Feather board to the 5V power supply and connect the MG90S servos to the ESP32-C6 Add-on board with external power supply.
+### 2️⃣ Software Requirements
+- Arduino IDE or PlatformIO  
+- Libraries:  
+  - `PubSubClient.h` (MQTT)  
+  - `WiFiNINA.h` (for EMKR1010)  
+  - `Adafruit_PWMServoDriver.h` (for MG90S control)  
+  - `WiFi.h` (for ESP32-C6)
+  - `esp_system.h` (for ESP32-C6)
+  - `esp_system.h` (for ESP32-C6)
+  - `esp_sleep.h`
+  - include `arduino_secrets.h` file for WiFi credentials and MQTT broker details.
+### 3️⃣ Enclosure Design
+
+
+
+--- 
  ## Package
  ```
 1. https://forum.fritzing.org/t/anemometer-in-fritzing/12799/2
@@ -65,3 +98,4 @@ circuit diagram for xylophone:
 
 ## Reference
 https://www.rkonfly.cn/index.php/index/shows/catid/42/id/95.html
+
