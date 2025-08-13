@@ -22,6 +22,14 @@ The project draws inspiration from *biophilic design* principles and aims to pro
 ## 🎥 Demo
  
 
+https://github.com/user-attachments/assets/cbe92d59-73f2-4cc1-957b-6b1370a6ae0b
+
+
+
+https://github.com/user-attachments/assets/f828534c-1641-437a-8894-df54421aac83
+
+
+
 ---
 
 ## 📡 System Overview
@@ -85,7 +93,6 @@ The project draws inspiration from *biophilic design* principles and aims to pro
   - `esp_sleep.h`
   - include `arduino_secrets.h` file for WiFi credentials and MQTT broker details.
 ### 3️⃣ Enclosure Design
-
 
 
 --- 
