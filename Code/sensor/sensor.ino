@@ -1,6 +1,7 @@
 #include <WiFiNINA.h>
 #include <PubSubClient.h>
 #include "arduino_secrets.h"
+
 // ====== WiFi & MQTT Settings ======
 const char* ssid          = SECRET_SSID;
 const char* password      = SECRET_PASS;
@@ -25,6 +26,11 @@ float windSpeed = 0;
 unsigned long lastSendTime = 0;
 const unsigned long sendInterval = 10000; // min 10s between sends
 const float threshold = 1.0; // Min 1 km/h difference to trigger message
+
+// average for 3 times sampleing
+float samples[3] = {0, 0, 0};
+int sampleIndex = 0;
+int samplesFilled = 0;
 
 void countPulse() {
   pulseCount++;
@@ -69,12 +75,22 @@ void loop() {
     Serial.print(windSpeed);
     Serial.println(" km/h");
 
+   
+    samples[sampleIndex] = windSpeed;
+    sampleIndex = (sampleIndex + 1) % 3;
+    if (samplesFilled < 3) samplesFilled++;
+
     // float delta = abs(windSpeed - lastWindSpeed);
-    //if (delta >= threshold && currentTime - lastSendTime >= sendInterval) {
-    if (currentTime - lastSendTime >= sendInterval) {
-      sendMQTT(windSpeed);
+    // if (delta >= threshold && currentTime - lastSendTime >= sendInterval) {
+    if (currentTime - lastSendTime >= sendInterval && samplesFilled == 3) {
+      
+      float avg = (samples[0] + samples[1] + samples[2]) / 3.0;
+      Serial.print("Average (3 samples): ");
+      Serial.print(avg);
+      Serial.println(" km/h");
+      sendMQTT(avg);
       lastSendTime = currentTime;
-      lastWindSpeed = windSpeed;
+      lastWindSpeed = avg;
     }
 
     pulseCount = 0;
@@ -129,4 +145,3 @@ void connectToWiFiWithTimeout() {
     NVIC_SystemReset();  // restart to connect
   }
 }
-
