@@ -40,7 +40,7 @@ https://github.com/user-attachments/assets/f828534c-1641-437a-8894-df54421aac83
   - 🎹 **Xylophone** — 8× MG90S servos hit keys mapped to wind levels.
 
 <div align=center>
-  <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/mainflow.png" width="800">
+  <img src="https://raw.githubusercontent.com/JY-SHENNNN/EchoWind/refs/heads/main/Img/mainflow.png" width="800">
   <p><strong>Fig. 1.</strong> System Overview</p>
 </div>
 
@@ -60,16 +60,19 @@ https://github.com/user-attachments/assets/f828534c-1641-437a-8894-df54421aac83
 **Sensor Node**  
 <div align=center>
     <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/sensorcircuit.png">
+    <p><strong>Fig. 2.</strong> Circuit diagram for the sensor node.</p>
 </div>
 
 **Wind Chime**  
 <div align=center>
     <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/circuit.png" width="800" height="400">
+    <p><strong>Fig. 3.</strong> Circuit diagram for the wind chime node.</p>
 </div>
 
 **Xylophone**  
 <div align=center>
     <img src="https://raw.githubusercontent.com/JY-SHENNNN/Dissertation/refs/heads/main/Img/circuit2.png" width="800" height="400">
+    <p><strong>Fig. 4.</strong> Circuit diagram for the xylophone node.</p>
 </div>
 
 ---
