@@ -111,7 +111,7 @@ The `Code` directory contains the following Arduino sketches: All sketches excep
   Utility sketch for calibrating the **xylophone servos**.
 
 
-### 3️⃣ Enclosure Design
+### 4️⃣ Enclosure Design
 The `src` directory contains the following 3D-printable STL files:
 
 - `anemometer.stl` and `anemometerbottom.stl`  
