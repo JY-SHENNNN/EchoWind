@@ -92,8 +92,36 @@ https://github.com/user-attachments/assets/f828534c-1641-437a-8894-df54421aac83
   - `esp_system.h` (for ESP32-C6)
   - `esp_sleep.h`
   - include `arduino_secrets.h` file for WiFi credentials and MQTT broker details.
-### 3️⃣ Enclosure Design
+### 3️⃣ Code Implementation
+The `Code` directory contains the following Arduino sketches: All sketches except `servoCalibrate.ino` require the `arduino_secrets.h` file to be present in the same directory.
 
+- `sensor.ino`  
+  Program for the **anemometer node**.
+
+- `Windchime.ino`  
+  Program for the **wind chime node**.
+
+- `Glockenspiel.ino`  
+  Program for the **xylophone node**.
+
+- `servoCalibrate.ino`  
+  Utility sketch for calibrating the **xylophone servos**.
+
+
+### 3️⃣ Enclosure Design
+The `src` directory contains the following 3D-printable STL files:
+
+- `anemometer.stl` and `anemometerbottom.stl`  
+  Enclosure parts for the anemometer (can be printed using Fusion 360 or other CAD software).  
+
+- `chimetube.stl`  
+  Central wire cover for the wind chime.  
+
+- `holder.stl`  
+  Servo holder.  
+
+- `mallet.stl`  
+  Xylophone mallet for striking.  
 
 --- 
  ## Package

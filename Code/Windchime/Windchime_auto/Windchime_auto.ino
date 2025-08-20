@@ -85,7 +85,7 @@ void PWMWave() {
   Serial.println(pwmValue);
   delay(5000);
   analogWrite(motor_pin, LOW);
-  delay(500);
+  delay(5000);
 }
 
 int getPwmValue(float ms) {
