@@ -29,12 +29,12 @@ https://github.com/user-attachments/assets/2d0ca31f-c91a-428a-b187-3b79d9365f25
 
 https://github.com/user-attachments/assets/f828534c-1641-437a-8894-df54421aac83
 <div align=center>
-  <p><strong>Demo 2.</strong> Xylophone</p>
+  <p><strong>Demo 2.</strong> Wind Chimes</p>
 </div>
 
 https://github.com/user-attachments/assets/cbe92d59-73f2-4cc1-957b-6b1370a6ae0b
 <div align=center>
-  <p><strong>Demo 3.</strong> Wind Chimes</p>
+  <p><strong>Demo 3.</strong> Xylophone </p>
 </div>
 
 
